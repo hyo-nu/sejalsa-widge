@@ -20,8 +20,8 @@ jobs:
         run: node sync.mjs
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
-          NOTION_WASH_DB_ID: ${{ secrets.NOTION_WASH_DB_ID }}
-          NOTION_PAYROLL_DB_ID: ${{ secrets.NOTION_PAYROLL_DB_ID }}
+          NOTION_WASH_DB_ID: '41e91f38-2801-81b3-8434-daa798bbe74f'
+          NOTION_PAYROLL_DB_ID: '41e91f38-2801-8188-9818-c1e1c5200026'
       - name: Commit latest KPI
         run: |
           git config user.name 'github-actions[bot]'
