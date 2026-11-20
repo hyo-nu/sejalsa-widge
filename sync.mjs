@@ -36,7 +36,32 @@ const minutes = completed.reduce((sum, row) =>
 
 const gross = completed.reduce((sum, row) => sum + (Number(row.properties['세차 보수(원)']?.number ?? row.properties['세차 보수(원)']?.formula?.number) || 0), 0);
 const deposit = payroll.reduce((sum, row) => sum + (Number(row.properties['실제 입금액(원)']?.number) || 0), 0);
+const classes = ['경차', '소형', '중형', '대형', 'SUV', '기타'];
+const types = ['내부만', '외부만', '내부+외부'];
+const grouped = new Map();
+for (const row of completed) {
+  const p = row.properties;
+  const cls = p['차급']?.select?.name ?? '기타';
+  const inside = p['내부 세차']?.checkbox === true;
+  const outside = p['외부 세차']?.checkbox === true;
+  const type = inside && outside ? '내부+외부' : inside ? '내부만' : outside ? '외부만' : null;
+  const duration = p['작업 시간(분)']?.number;
+  if (!type || !Number.isFinite(duration) || !classes.includes(cls)) continue;
+  const key = cls + '/' + type;
+  const current = grouped.get(key) ?? { total: 0, count: 0 };
+  current.total += duration;
+  current.count++;
+  grouped.set(key, current);
+}
+const byCarClass = classes.map(cls => ({
+  class: cls,
+  ...Object.fromEntries(types.map(type => {
+    const value = grouped.get(cls + '/' + type);
+    return [type, value ? { average: Math.round(value.total / value.count * 10) / 10, count: value.count } : null];
+  }))
+})).filter(row => types.some(type => row[type] !== null));
 const data = {
+  byCarClass,
   count: completed.length,
   deposit,
   averageMinutes: completed.length ? Math.round(minutes / completed.length * 10) / 10 : 0,
