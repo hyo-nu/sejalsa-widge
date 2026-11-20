@@ -30,11 +30,13 @@ const [wash, payroll] = await Promise.all([getRows(washId), getRows(payrollId)])
 const completed = wash.filter(row =>
   (row.properties['세차 상태']?.select?.name || row.properties['세차 상태']?.status?.name) === '완료'
 );
-const minutes = completed.reduce((sum, row) =>
-  sum + (Number(row.properties['작업 시간(분)']?.number) || 0), 0
-);
-
-const gross = completed.reduce((sum, row) => sum + (Number(row.properties['세차 보수(원)']?.number ?? row.properties['세차 보수(원)']?.formula?.number) || 0), 0);
+const timed = completed.filter(row => {
+  const value = row.properties['작업 시간(분)']?.number;
+  return typeof value === 'number' && Number.isFinite(value) && value > 0;
+});
+const minutes = timed.reduce((sum, row) => sum + row.properties['작업 시간(분)'].number, 0);
+const gross = timed.reduce((sum, row) =>
+  sum + (Number(row.properties['세차 보수(원)']?.number ?? row.properties['세차 보수(원)']?.formula?.number) || 0), 0);
 const deposit = payroll.reduce((sum, row) => sum + (Number(row.properties['실제 입금액(원)']?.number) || 0), 0);
 const classes = ['경차', '소형', '중형', '대형', 'SUV', '기타'];
 const types = ['내부만', '외부만', '내부+외부'];
@@ -64,7 +66,7 @@ const data = {
   byCarClass,
   count: completed.length,
   deposit,
-  averageMinutes: completed.length ? Math.round(minutes / completed.length * 10) / 10 : 0,
+  averageMinutes: timed.length ? Math.round(minutes / timed.length * 10) / 10 : 0,
   hourly: minutes ? Math.round(gross * 60 / minutes) : 0,
   updatedAt: new Date().toISOString()
 };
