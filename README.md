@@ -1,21 +1,22 @@
 # 세잘사 Notion KPI 위젯
 
-GitHub Actions가 Notion의 세차 작업 기록을 매시간 집계하고 GitHub Pages에서 공개 가능한 지표 두 개를 보여줍니다.
+Notion 세차/급여 데이터를 GitHub Actions에서 매시간 집계하고 GitHub Pages에서 KPI 카드 네 개를 표시합니다.
 
 - 총 세차 대수
+- 실제 입금액
 - 평균 작업 시간
+- 시간당 수익
 
-**개인 수익 및 급여 데이터는 더 이상 API에서 조회하거나 공개 파일에 출력하지 않습니다.**
+## 연동
 
-## 설정
+- Notion Integration은 세차 작업 기록 및 급여 정산 기록에 읽기 권한이 있어야 합니다.
+- GitHub Actions Secret: `NOTION_TOKEN`
+- `.github/workflows/update.yml`의 Notion 데이터베이스 ID가 올바른지 확인합니다.
+- 수동 갱신은 Actions → Refresh Notion KPI → Run workflow에서 수행합니다.
+- 위젯 URL: https://hyo-nu.github.io/sejalsa-widge/
 
-1. Notion Integration에 세차 작업 기록 데이터베이스의 읽기 권한을 부여합니다.
-2. GitHub Actions Secrets에 `NOTION_TOKEN`을 등록합니다.
-3. `.github/workflows/update.yml`의 `NOTION_WASH_DB_ID` 값은 기존 DB ID를 사용합니다.
-4. Actions에서 `Refresh Notion KPI`를 실행하거나 매시간 자동 갱신을 사용합니다.
-5. GitHub Pages의 위젯 URL을 Notion 페이지에 임베드합니다.
+## 주의: 공개 데이터
 
-## 공개 및 과거 기록에 대한 주의
-
-이 저장소와 GitHub Pages는 Public입니다. `data.json`의 세차 대수 및 작업 시간 정보는 공개됩니다.
-이전에 공개된 급여와 수익 수치는 **과거 Git 커밋/Actions 로그/외부 캐시**에 남아 있을 수 있습니다. 현재 파일 수정만으로 과거 기록까지 완전히 삭제할 수는 없습니다.
+**이 저장소와 GitHub Pages는 Public이며 금액과 수익 통계가 외부에 공개됩니다.**
+자동 갱신된 `data.json`뿐 아니라 Git 커밋 기록과 Actions 로그의 과거 집계 값도 열람 가능할 수 있습니다.
+Notion API 토큰은 GitHub Secrets에서만 관리하세요.
