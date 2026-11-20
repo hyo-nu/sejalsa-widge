@@ -1,7 +1,45 @@
 {
+  "byCarClass": [
+    {
+      "class": "중형",
+      "내부만": null,
+      "외부만": {
+        "average": 59,
+        "count": 2
+      },
+      "내부+외부": {
+        "average": 90,
+        "count": 2
+      }
+    },
+    {
+      "class": "대형",
+      "내부만": null,
+      "외부만": {
+        "average": 47,
+        "count": 1
+      },
+      "내부+외부": {
+        "average": 67.5,
+        "count": 2
+      }
+    },
+    {
+      "class": "SUV",
+      "내부만": null,
+      "외부만": {
+        "average": 46.5,
+        "count": 2
+      },
+      "내부+외부": {
+        "average": 82.7,
+        "count": 6
+      }
+    }
+  ],
   "count": 15,
   "deposit": 29735,
   "averageMinutes": 71.3,
   "hourly": 17582,
-  "updatedAt": "2026-11-20T08:18:04.486Z"
+  "updatedAt": "2026-11-20T15:36:28.053Z"
 }
