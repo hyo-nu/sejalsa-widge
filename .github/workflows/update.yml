@@ -1,6 +1,9 @@
 name: Refresh Notion KPI
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/update.yml'
   schedule:
     - cron: '17 * * * *'
 permissions:
