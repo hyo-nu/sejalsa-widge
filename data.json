@@ -28,8 +28,8 @@
       "class": "SUV",
       "내부만": null,
       "외부만": {
-        "average": 46.5,
-        "count": 2
+        "average": 30.3,
+        "count": 4
       },
       "내부+외부": {
         "average": 82.7,
@@ -39,7 +39,7 @@
   ],
   "count": 18,
   "deposit": 29735,
-  "averageMinutes": 71.3,
-  "hourly": 17582,
-  "updatedAt": "2026-11-21T04:00:29.509Z"
+  "averageMinutes": 64.5,
+  "hourly": 18446,
+  "updatedAt": "2026-11-21T12:42:20.434Z"
 }
