@@ -68,7 +68,7 @@ const byCarClass = classes.map(cls => ({
 const DAY_MS = 86400000;
 const ANCHOR_MS = Date.UTC(2026, 9, 25);
 const buckets = new Map();
-const plainDate = value => /^\\d{4}-\\d{2}-\\d{2}$/.test(value ?? '') ? value : null;
+const plainDate = value => /^\d{4}-\d{2}-\d{2}$/.test(value ?? '') ? value : null;
 function periodFor(dateString) {
   const date = plainDate(dateString);
   if (!date) return null;
