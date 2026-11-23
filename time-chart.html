@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>차급·세차 유형별 평균 작업 시간</title>
+<style>
+:root{color-scheme:light dark}
+*{box-sizing:border-box}
+body{margin:0;background:transparent;color:light-dark(#172335,#e5eaf3);font-family:system-ui,-apple-system,"Pretendard",sans-serif}
+.panel{padding:13px 14px 10px;border:1px solid light-dark(#e1e8f1,#454c58);border-radius:12px;background:light-dark(#fff,#222)}
+.head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
+h1{font-size:13px;margin:0 0 4px;font-weight:750}
+.sub,.foot{font-size:10px;color:light-dark(#718096,#a7b2c2);margin:0}
+.legend{display:flex;gap:12px;align-items:center;flex-wrap:wrap;font-size:10px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend b{width:9px;height:9px;border-radius:2px;display:inline-block}
+.view{overflow-x:auto;width:100%;margin-top:10px}
+svg{display:block;width:100%;height:auto;min-width:390px}
+.gridline{stroke:light-dark(#e8eef5,#424b56);stroke-width:1}
+.axis{fill:light-dark(#607085,#b2bac9);font-size:10px}
+.bar{cursor:pointer;opacity:.93}.bar:hover{opacity:.72}
+#tooltip{position:fixed;z-index:20;visibility:hidden;pointer-events:none;line-height:1.55;max-width:220px;padding:8px 11px;border:1px solid light-dark(#dce6f2,#596473);background:light-dark(#fff,#303846);color:light-dark(#25364a,#f1f4f9);border-radius:8px;box-shadow:0 5px 18px #0002;font-size:11px}
+.foot{margin-top:4px}
+@media(max-width:480px){.panel{padding:10px 8px}.legend{font-size:9px;gap:8px}}
+</style>
+</head>
+<body>
+<section class="panel">
+  <div class="head">
+    <div><h1>차급·세차 유형별 평균 작업 시간</h1><p class="sub">완료 기록 중 작업 시간이 입력된 차량 기준</p></div>
+    <div class="legend"><span><b style="background:#4b88de"></b>내부만</span><span><b style="background:#efaa4f"></b>외부만</span><span><b style="background:#31aa95"></b>내부+외부</span></div>
+  </div>
+  <div class="view"><svg id="chart" role="img" aria-label="차급별 내부만, 외부만, 내부와 외부 평균 작업 시간 세로 막대그래프" viewBox="0 0 760 260"></svg></div>
+  <p class="foot" id="foot">막대에 마우스를 올리면 평균 시간과 표본 건수를 볼 수 있어. 데이터가 없는 조합은 표시하지 않아.</p>
+</section>
+<div id="tooltip" role="tooltip"></div>
+<script>
+const svg=document.getElementById('chart'),tip=document.getElementById('tooltip'),foot=document.getElementById('foot');
+const TYPES=[['내부만','#4b88de'],['외부만','#efaa4f'],['내부+외부','#31aa95']];
+const num=n=>Number(n).toLocaleString('ko-KR',{maximumFractionDigits:1});
+function node(tag,attrs={},text){
+ const e=document.createElementNS('http://www.w3.org/2000/svg',tag);
+ for(const [k,v] of Object.entries(attrs))e.setAttribute(k,v);
+ if(text!==undefined)e.textContent=text;
+ svg.appendChild(e);return e;
+}
+function hide(){tip.style.visibility='hidden'}
+function place(e){
+ const rect=e.currentTarget.getBoundingClientRect();
+ const cx=typeof e.clientX==='number'?e.clientX:rect.left+rect.width/2;
+ const cy=typeof e.clientY==='number'?e.clientY:rect.top;
+ let x=Math.min(window.innerWidth-tip.offsetWidth-5,Math.max(5,cx+12));
+ let y=cy-tip.offsetHeight-12;
+ if(y<5)y=Math.min(window.innerHeight-tip.offsetHeight-5,cy+14);
+ tip.style.left=x+'px';tip.style.top=y+'px';
+}
+function draw(rows){
+ svg.replaceChildren();
+ if(!rows.length){foot.textContent='집계할 작업 시간 데이터가 없어.';return;}
+ const W=Math.max(760,rows.length*116+95),H=260,L=49,R=14,T=22,B=67,P=H-T-B,C=W-L-R;
+ svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+ svg.style.minWidth=W>760?W+'px':'390px';
+ const values=rows.flatMap(r=>TYPES.map(([k])=>r[k]?.average).filter(Number.isFinite));
+ const maximum=Math.max(10,...values),magnitude=Math.pow(10,Math.floor(Math.log10(maximum)));
+ const raw=maximum*1.12/magnitude;const limit=(raw<=1?1:raw<=2?2:raw<=5?5:10)*magnitude;
+ for(let i=0;i<=4;i++){
+  const y=T+P*i/4;
+  node('line',{x1:L,y1:y,x2:W-R,y2:y,class:'gridline'});
+  node('text',{x:L-7,y:y+4,'text-anchor':'end',class:'axis'},num(limit*(4-i)/4));
+ }
+ node('text',{x:L-6,y:13,'text-anchor':'end',class:'axis'},'분');
+ rows.forEach((r,i)=>{
+  const center=L+C*(i+.5)/rows.length,barW=Math.min(22,C/rows.length/5.4),gap=Math.min(5,barW*.3);
+  TYPES.forEach(([key,color],j)=>{
+   const value=r[key];
+   if(!value||!Number.isFinite(value.average))return;
+   const h=P*Math.min(value.average/limit,1),x=center+(j-1)*(barW+gap)-barW/2,y=T+P-h;
+   const bar=node('rect',{x,y,width:barW,height:h,rx:3,fill:color,class:'bar',tabindex:0,role:'button','aria-label':r.class+' '+key+' '+num(value.average)+'분 '+value.count+'건'});
+   const show=e=>{
+    tip.innerHTML='<strong>'+r.class+' · '+key+'</strong><div>평균 작업 시간: <b>'+num(value.average)+'분</b></div><div>작업 건수: <b>'+value.count+'건</b></div>';
+    tip.style.visibility='visible';place(e);
+   };
+   bar.addEventListener('pointerenter',show);
+   bar.addEventListener('pointermove',place);
+   bar.addEventListener('pointerleave',hide);
+   bar.addEventListener('focus',show);
+   bar.addEventListener('blur',hide);
+  });
+  const words=r.class.includes('·')?r.class.split(' SUV')[0].split('·'):null;
+  const label=r.class;
+  if(label==='소형·준중형 SUV'||label==='중형·대형 SUV'){
+   const parts=label.split(' ');
+   node('text',{x:center,y:T+P+19,'text-anchor':'middle',class:'axis'},parts[0]);
+   node('text',{x:center,y:T+P+33,'text-anchor':'middle',class:'axis'},parts[1]);
+  }else if(label==='소형·준중형'){
+   node('text',{x:center,y:T+P+19,'text-anchor':'middle',class:'axis'},'소형·준중형');
+  }else{
+   node('text',{x:center,y:T+P+19,'text-anchor':'middle',class:'axis'},label);
+  }
+ });
+}
+async function load(){
+ try{
+  const response=await fetch('./data.json?ts='+Date.now(),{cache:'no-store'});
+  if(!response.ok)throw Error('HTTP '+response.status);
+  const d=await response.json();
+  if(!Array.isArray(d.byCarClass))throw Error('차급 집계 데이터 없음');
+  draw(d.byCarClass);
+  if(d.updatedAt)foot.textContent+=' · 마지막 갱신 '+new Date(d.updatedAt).toLocaleString('ko-KR');
+ }catch(e){foot.textContent='차트를 불러오지 못했어: '+e.message;}
+}
+load();
+</script>
+</body></html>
