@@ -52,7 +52,7 @@ const modelGroups = [
   ['중형', ['K5', '쏘나타', '모델 3', '머스탱', 'SM6', '말리부', 'BMW 3시리즈', '벤츠 C-클래스', 'A4']]
 ];
 function cleaningSize(p) {
-  const model = (p['차량명']?.rich_text ?? []).map(t => t.plain_text || '').join('').toUpperCase();
+  const model = (p['차량종류']?.select?.name || '').toUpperCase();
   for (const [cls, names] of modelGroups) {
     if (names.some(name => model.includes(name.toUpperCase()))) return cls;
   }
