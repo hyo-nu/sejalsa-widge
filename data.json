@@ -1,5 +1,20 @@
 {
-  "byPayPeriod": [],
+  "byPayPeriod": [
+    {
+      "start": "2026-10-25",
+      "end": "2026-11-07",
+      "income": 30750,
+      "cars": 1,
+      "incentive": 0
+    },
+    {
+      "start": "2026-11-08",
+      "end": "2026-11-21",
+      "income": 420500,
+      "cars": 17,
+      "incentive": 17000
+    }
+  ],
   "byCarClass": [
     {
       "class": "중형",
@@ -42,5 +57,5 @@
   "deposit": 29735,
   "averageMinutes": 64.5,
   "hourly": 18446,
-  "updatedAt": "2026-11-23T05:22:17.297Z"
+  "updatedAt": "2026-11-23T05:23:51.631Z"
 }
