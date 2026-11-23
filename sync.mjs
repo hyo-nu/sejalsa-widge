@@ -39,17 +39,39 @@ const minutes = timed.reduce((sum, row) => sum + row.properties['작업 시간(�
 const gross = timed.reduce((sum, row) =>
   sum + (Number(row.properties['세차 보수(원)']?.number ?? row.properties['세차 보수(원)']?.formula?.number) || 0) + (Number(row.properties['부가서비스 보수(원)']?.number) || 0), 0);
 const deposit = payroll.reduce((sum, row) => sum + (Number(row.properties['실제 입금액(원)']?.number) || 0), 0);
-const classes = ['경차', '소형', '중형', '대형', 'SUV', '기타'];
+// Practical cleaning-size groups, independent of legal vehicle class.
+// Match model names only in memory. Never export model names or registration numbers.
+const classes = ['경차', '소형·준중형', '중형', '대형', '소형·준중형 SUV', '중형·대형 SUV'];
 const types = ['내부만', '외부만', '내부+외부'];
+const modelGroups = [
+  ['경차', ['모닝', '레이', '캐스퍼', '스파크', '마티즈']],
+  ['소형·준중형 SUV', ['티볼리', '투싼', '코나', '셀토스', '스포티지', '니로', '트랙스', '트레일블레이저', 'XM3', 'QM3', '베뉴', 'XC40', '렉서스 NX', 'NX350', 'NX300', 'GLA', 'GLB', 'Q3']],
+  ['중형·대형 SUV', ['팰리세이드', '쏘렌토', '싼타페', 'XC60', 'XC90', 'BMW X4', 'BMW X5', 'BMW X6', '벤츠 GLE', '벤츠 GLS', 'EQS SUV', '모델 Y', '모델 X', '폴스타 4', 'EV9', 'GV70', 'GV80', '카이엔', '마칸']],
+  ['소형·준중형', ['아반떼', 'K3', '엑센트', '베르나', '아이오닉 5', '아이오닉 6', '골프', 'A3']],
+  ['대형', ['K8', 'K9', '그랜저', 'G80', 'G90', 'BMW 5시리즈', 'BMW 7시리즈', '벤츠 E-클래스', '벤츠 S-클래스', 'E클래스', 'S클래스']],
+  ['중형', ['K5', '쏘나타', '모델 3', '머스탱', 'SM6', '말리부', 'BMW 3시리즈', '벤츠 C-클래스', 'A4']]
+];
+function cleaningSize(p) {
+  const model = (p['차량명']?.rich_text ?? []).map(t => t.plain_text || '').join('').toUpperCase();
+  for (const [cls, names] of modelGroups) {
+    if (names.some(name => model.includes(name.toUpperCase()))) return cls;
+  }
+  const oldClass = p['차급']?.select?.name;
+  if (oldClass === '경차') return '경차';
+  if (oldClass === '소형') return '소형·준중형';
+  if (oldClass === '중형' || oldClass === '대형') return oldClass;
+  // SUV with an unknown model is excluded until its size can be identified.
+  return null;
+}
 const grouped = new Map();
 for (const row of completed) {
   const p = row.properties;
-  const cls = p['차급']?.select?.name ?? '기타';
+  const cls = cleaningSize(p);
   const inside = p['내부 세차']?.checkbox === true;
   const outside = p['외부 세차']?.checkbox === true;
   const type = inside && outside ? '내부+외부' : inside ? '내부만' : outside ? '외부만' : null;
   const duration = p['작업 시간(분)']?.number;
-  if (!type || !Number.isFinite(duration) || !classes.includes(cls)) continue;
+  if (!type || !Number.isFinite(duration) || duration <= 0 || !cls) continue;
   const key = cls + '/' + type;
   const current = grouped.get(key) ?? { total: 0, count: 0 };
   current.total += duration;
