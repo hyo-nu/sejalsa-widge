@@ -60,14 +60,14 @@
         "count": 3
       },
       "내부+외부": {
-        "average": 71.5,
-        "count": 4
+        "average": 72,
+        "count": 5
       }
     }
   ],
   "count": 18,
   "deposit": 29735,
-  "averageMinutes": 64.5,
-  "hourly": 18446,
-  "updatedAt": "2026-11-23T06:10:49.776Z"
+  "averageMinutes": 65.1,
+  "hourly": 18535,
+  "updatedAt": "2026-11-23T14:43:43.584Z"
 }
