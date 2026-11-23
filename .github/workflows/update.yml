@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - '.github/workflows/update.yml'
+      - 'sync.mjs'
   schedule:
     - cron: '17 * * * *'
 permissions:
