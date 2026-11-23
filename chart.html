@@ -7,39 +7,48 @@
 :root{color-scheme:light dark}
 *{box-sizing:border-box}
 body{margin:0;font-family:system-ui,-apple-system,"Pretendard",sans-serif;background:transparent;color:light-dark(#172335,#e5eaf3)}
-.panel{border:1px solid light-dark(#e1e8f1,#424955);background:light-dark(#fff,#222);border-radius:16px;padding:20px 18px 14px;min-width:0}
-.top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
-h1{font-size:16px;font-weight:750;margin:0 0 6px}
-.sub{font-size:12px;color:light-dark(#687587,#aaa);margin:0}
-.legend{display:flex;gap:18px;align-items:center;font-size:12px;font-weight:600;margin-top:4px}
-.legend span{display:inline-flex;gap:6px;align-items:center}.legend b{width:11px;height:11px;background:#4285e5;border-radius:3px;display:inline-block}.legend em{width:15px;border-top:3px solid #e99835;display:inline-block}
-.viewport{width:100%;overflow-x:auto;margin-top:16px}
-svg{display:block;width:100%;height:auto;min-width:460px;overflow:visible}
+.panel{border:1px solid light-dark(#e1e8f1,#424955);background:light-dark(#fff,#222);border-radius:12px;padding:11px 12px 10px;min-width:0}
+.top{display:flex;justify-content:space-between;gap:7px;align-items:flex-start;flex-wrap:wrap}
+h1{font-size:13px;font-weight:750;margin:0 0 3px}
+.sub{font-size:10px;color:light-dark(#687587,#aaa);margin:0}
+.legend{display:flex;gap:12px;align-items:center;font-size:10px;font-weight:600;margin-top:4px}
+.legend span{display:inline-flex;gap:6px;align-items:center}.legend b{width:9px;height:9px;background:#4285e5;border-radius:3px;display:inline-block}.legend em{width:15px;border-top:3px solid #e99835;display:inline-block}
+.viewport{width:100%;overflow-x:auto;margin-top:7px}
+svg{display:block;width:100%;height:auto;min-width:290px;overflow:visible}
 svg text{font-family:inherit}
-.gridline{stroke:light-dark(#e9eef5,#424754);stroke-width:1}.axis{fill:light-dark(#64748b,#b1bac8);font-size:11px}
-.bar{fill:#4285e5;opacity:.94}.bar:hover{opacity:.7}.series{stroke:#e99835;fill:none;stroke-width:3;stroke-linejoin:round;stroke-linecap:round}.dot{fill:#e99835;stroke:light-dark(#fff,#222);stroke-width:2}
-#tip{padding:9px 12px;border-radius:9px;background:light-dark(#f0f5fc,#343c4b);font-size:12px;color:light-dark(#25364a,#f1f4f9);margin-top:8px;min-height:38px}
-.foot{font-size:11px;color:light-dark(#8090a5,#a0a8b4);margin-top:12px}
+.gridline{stroke:light-dark(#e9eef5,#424754);stroke-width:1}.axis{fill:light-dark(#64748b,#b1bac8);font-size:9px}
+.bar{fill:#4285e5;opacity:.94}.bar:hover{opacity:.7}.series{stroke:#e99835;fill:none;stroke-width:2.2;stroke-linejoin:round;stroke-linecap:round}.dot{fill:#e99835;stroke:light-dark(#fff,#222);stroke-width:2}
+#tip{position:fixed;z-index:30;pointer-events:none;max-width:230px;padding:8px 10px;border-radius:8px;border:1px solid light-dark(#dce6f2,#576272);background:light-dark(#fff,#303846);box-shadow:0 4px 15px #0002;font-size:11px;line-height:1.55;color:light-dark(#25364a,#f1f4f9);visibility:hidden;white-space:normal}
+.foot{font-size:9px;color:light-dark(#8090a5,#a0a8b4);margin-top:5px}
 .error{padding:24px;color:light-dark(#9b2532,#ffb4be)}
-@media(max-width:500px){.panel{padding:15px 12px}h1{font-size:15px}.legend{gap:12px}}
+@media(max-width:500px){.panel{padding:10px 8px}h1{font-size:12px}.legend{gap:8px;font-size:9px}}
 </style>
 </head>
 <body>
 <section class="panel">
   <div class="top"><div><h1>2주 단위 예상 수익 · 세차 대수</h1><p class="sub">실제 급여 정산 주기 기준 · 세전 예상 금액</p></div><div class="legend"><span><b></b>예상 수익</span><span><em></em>완료 대수</span></div></div>
-  <div class="viewport"><svg id="chart" role="img" aria-label="2주 정산 기간별 예상 수익 막대 및 완료 세차 대수 꺾은선 차트" viewBox="0 0 800 315"></svg></div>
-  <div id="tip" aria-live="polite">막대 또는 점을 선택하면 기간별 세부 내역이 표시돼.</div>
+  <div class="viewport"><svg id="chart" role="img" aria-label="2주 정산 기간별 예상 수익 막대 및 완료 세차 대수 꺾은선 차트" viewBox="0 0 620 220"></svg></div>
+  <div id="tip" role="tooltip" aria-live="polite"></div>
   <div class="foot" id="foot">수익 = 일별 총 지급액 + 예상 별점 인센티브 (미확정 포함)</div>
 </section>
 <script>
 const svg=document.getElementById('chart'),tip=document.getElementById('tip'),foot=document.getElementById('foot');
 const fmt=n=>Math.round(n).toLocaleString('ko-KR'), short=s=>s.slice(5).replace('-','/');
+function hideTip(){tip.style.visibility='hidden';}
+function positionTip(e){
+ const rect=e.currentTarget.getBoundingClientRect();
+ const pointer=e.clientX!=null?{x:e.clientX,y:e.clientY}:{x:rect.left+rect.width/2,y:rect.top};
+ let x=pointer.x+12,y=pointer.y-12-tip.offsetHeight;
+ x=Math.max(6,Math.min(x,window.innerWidth-tip.offsetWidth-6));
+ if(y<6)y=Math.min(window.innerHeight-tip.offsetHeight-6,pointer.y+14);
+ tip.style.left=x+'px';tip.style.top=y+'px';
+}
 function draw(rows){
  svg.replaceChildren();
- if(!rows.length){tip.textContent='집계할 작업 내역이 없어.';return;}
- const width=Math.max(800,rows.length*105+125),height=315,left=72,right=61,top=26,bottom=68,H=height-top-bottom,W=width-left-right;
+ if(!rows.length){tip.textContent='집계할 작업 내역이 없어.';tip.style.visibility='visible';return;}
+ const width=Math.max(620,rows.length*82+100),height=220,left=62,right=47,top=17,bottom=44,H=height-top-bottom,W=width-left-right;
  svg.setAttribute('viewBox',`0 0 ${width} ${height}`);
- svg.style.minWidth=width>800?width+'px':'460px';
+ svg.style.minWidth=width>620?width+'px':'290px';
  const maxIncome=Math.max(10000,...rows.map(r=>r.income||0)), maxCars=Math.max(1,...rows.map(r=>r.cars||0));
  const nice=(max)=>{const mag=Math.pow(10,Math.floor(Math.log10(max||1)));const scaled=max/mag;return (scaled<=1?1:scaled<=2?2:scaled<=5?5:10)*mag};
  const incomeLimit=nice(maxIncome*1.12), carLimit=Math.max(4,Math.ceil(maxCars*1.12));
@@ -54,21 +63,27 @@ function draw(rows){
  el('text',{x:width-right+10,y:13,class:'axis'},'대');
  const bars=[];
  rows.forEach((r,i)=>{
-  const center=x(i), bw=Math.min(44,W/rows.length*.55), y=yIncome(r.income);
+  const center=x(i), bw=Math.min(34,W/rows.length*.40), y=yIncome(r.income);
   const bar=el('rect',{x:center-bw/2,y,width:bw,height:Math.max(0,top+H-y),rx:4,class:'bar',tabindex:0,role:'button','aria-label':`${r.start} ~ ${r.end} 예상 수익 ${fmt(r.income)}원`});
   bars.push(bar);
-  el('text',{x:center,y:top+H+19,'text-anchor':'middle',class:'axis'},short(r.start));
-  el('text',{x:center,y:top+H+33,'text-anchor':'middle',class:'axis'},'~ '+short(r.end));
+  el('text',{x:center,y:top+H+14,'text-anchor':'middle',class:'axis'},short(r.start));
+  el('text',{x:center,y:top+H+26,'text-anchor':'middle',class:'axis'},'~ '+short(r.end));
  });
  const d=rows.map((r,i)=>(i?'L':'M')+x(i)+' '+yCars(r.cars)).join(' ');
  el('path',{d,class:'series'});
- rows.forEach((r,i)=>{const dot=el('circle',{cx:x(i),cy:yCars(r.cars),r:5,class:'dot',tabindex:0,role:'button','aria-label':`${r.start} ~ ${r.end} 완료 ${r.cars}대`});
-  const show=()=>{tip.textContent=`${r.start} ~ ${r.end} | 예상 수익 ${fmt(r.income)}원 (인센티브 ${fmt(r.incentive||0)}원 포함) | 완료 ${fmt(r.cars)}대`;};
-  [bars[i],dot].forEach(e=>{e.addEventListener('mouseenter',show);e.addEventListener('focus',show);e.addEventListener('click',show);});
+ rows.forEach((r,i)=>{const dot=el('circle',{cx:x(i),cy:yCars(r.cars),r:4,class:'dot',tabindex:0,role:'button','aria-label':`${r.start} ~ ${r.end} 완료 ${r.cars}대`});
+  const show=(e)=>{
+    tip.innerHTML='<strong>'+r.start+' ~ '+r.end+'</strong><div>예상 수익: <b>'+fmt(r.income)+'원</b></div><div>완료 대수: <b>'+fmt(r.cars)+'대</b></div><div>예상 인센티브: '+fmt(r.incentive||0)+'원 포함</div>';
+    tip.style.visibility='visible';positionTip(e);
+  };
+  [bars[i],dot].forEach(e=>{e.style.cursor='pointer';e.addEventListener('pointerenter',show);e.addEventListener('pointermove',positionTip);e.addEventListener('pointerleave',hideTip);e.addEventListener('focus',show);e.addEventListener('blur',hideTip);e.addEventListener('click',show);});
+  const hit=el('circle',{cx:x(i),cy:yCars(r.cars),r:13,fill:'transparent',tabindex:0,role:'button','aria-label':r.start+' ~ '+r.end+' 완료 '+fmt(r.cars)+'대'});
+  hit.style.cursor='pointer';hit.addEventListener('pointerenter',show);hit.addEventListener('pointermove',positionTip);hit.addEventListener('pointerleave',hideTip);hit.addEventListener('focus',show);hit.addEventListener('blur',hideTip);
+
  });
- const last=rows[rows.length-1];tip.textContent=`${last.start} ~ ${last.end} | 예상 수익 ${fmt(last.income)}원 (인센티브 ${fmt(last.incentive||0)}원 포함) | 완료 ${fmt(last.cars)}대`;
+
 }
-async function load(){try{const r=await fetch('./data.json?ts='+Date.now(),{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const d=await r.json();if(!Array.isArray(d.byPayPeriod))throw Error('2주 집계 데이터가 아직 생성되지 않았습니다');draw(d.byPayPeriod);if(d.updatedAt)foot.textContent+=' · 마지막 동기화 '+new Date(d.updatedAt).toLocaleString('ko-KR');}catch(e){tip.textContent='차트 데이터를 불러오지 못했습니다: '+e.message;svg.replaceChildren();}}
+async function load(){try{const r=await fetch('./data.json?ts='+Date.now(),{cache:'no-store'});if(!r.ok)throw Error('HTTP '+r.status);const d=await r.json();if(!Array.isArray(d.byPayPeriod))throw Error('2주 집계 데이터가 아직 생성되지 않았습니다');draw(d.byPayPeriod);if(d.updatedAt)foot.textContent+=' · 마지막 동기화 '+new Date(d.updatedAt).toLocaleString('ko-KR');}catch(e){tip.textContent='차트 데이터를 불러오지 못했습니다: '+e.message;tip.style.visibility='visible';tip.style.left='12px';tip.style.top='55px';svg.replaceChildren();}}
 load();
 </script>
 </body></html>
