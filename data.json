@@ -17,15 +17,27 @@
   ],
   "byCarClass": [
     {
+      "class": "경차",
+      "내부만": null,
+      "외부만": {
+        "average": 69,
+        "count": 1
+      },
+      "내부+외부": {
+        "average": 67,
+        "count": 2
+      }
+    },
+    {
       "class": "중형",
       "내부만": null,
       "외부만": {
-        "average": 59,
-        "count": 2
+        "average": 49,
+        "count": 1
       },
       "내부+외부": {
-        "average": 90,
-        "count": 2
+        "average": 108,
+        "count": 1
       }
     },
     {
@@ -36,20 +48,32 @@
         "count": 1
       },
       "내부+외부": {
-        "average": 67.5,
+        "average": 73,
+        "count": 1
+      }
+    },
+    {
+      "class": "소형·준중형 SUV",
+      "내부만": null,
+      "외부만": {
+        "average": 23,
+        "count": 1
+      },
+      "내부+외부": {
+        "average": 105,
         "count": 2
       }
     },
     {
-      "class": "SUV",
+      "class": "중형·대형 SUV",
       "내부만": null,
       "외부만": {
-        "average": 30.3,
-        "count": 4
+        "average": 32.7,
+        "count": 3
       },
       "내부+외부": {
-        "average": 82.7,
-        "count": 6
+        "average": 71.5,
+        "count": 4
       }
     }
   ],
@@ -57,5 +81,5 @@
   "deposit": 29735,
   "averageMinutes": 64.5,
   "hourly": 18446,
-  "updatedAt": "2026-11-23T05:23:51.631Z"
+  "updatedAt": "2026-11-23T05:43:21.963Z"
 }
