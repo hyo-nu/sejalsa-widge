@@ -3,7 +3,8 @@ import fs from 'node:fs/promises';
 const token = process.env.NOTION_TOKEN;
 const washId = process.env.NOTION_WASH_DB_ID;
 const payrollId = process.env.NOTION_PAYROLL_DB_ID;
-if (!token || !washId || !payrollId) throw Error('Missing Notion integration configuration');
+const dailyPayId = process.env.NOTION_DAILY_PAY_DB_ID;
+if (!token || !washId || !payrollId || !dailyPayId) throw Error('Missing Notion integration configuration');
 
 async function getRows(id) {
   const results = [];
@@ -26,7 +27,7 @@ async function getRows(id) {
   return results;
 }
 
-const [wash, payroll] = await Promise.all([getRows(washId), getRows(payrollId)]);
+const [wash, payroll, dailyPay] = await Promise.all([getRows(washId), getRows(payrollId), getRows(dailyPayId)]);
 const completed = wash.filter(row =>
   (row.properties['세차 상태']?.select?.name || row.properties['세차 상태']?.status?.name) === '완료'
 );
@@ -62,7 +63,44 @@ const byCarClass = classes.map(cls => ({
     return [type, value ? { average: Math.round(value.total / value.count * 10) / 10, count: value.count } : null];
   }))
 })).filter(row => types.some(type => row[type] !== null));
+// Align both metrics to the actual 14-day payroll cycle, anchored on 2026-10-25.
+// Use date-only strings and UTC arithmetic so the workflow timezone cannot shift dates.
+const DAY_MS = 86400000;
+const ANCHOR_MS = Date.UTC(2026, 9, 25);
+const buckets = new Map();
+const plainDate = value => /^\\d{4}-\\d{2}-\\d{2}$/.test(value ?? '') ? value : null;
+function periodFor(dateString) {
+  const date = plainDate(dateString);
+  if (!date) return null;
+  const day = Date.parse(date + 'T00:00:00Z');
+  if (!Number.isFinite(day)) return null;
+  const index = Math.floor((day - ANCHOR_MS) / (14 * DAY_MS));
+  const startMs = ANCHOR_MS + index * 14 * DAY_MS;
+  const endMs = startMs + 13 * DAY_MS;
+  const iso = ms => new Date(ms).toISOString().slice(0, 10);
+  return { key: iso(startMs), end: iso(endMs) };
+}
+function bucketFor(period) {
+  if (!period) return null;
+  if (!buckets.has(period.key)) buckets.set(period.key, { start: period.key, end: period.end, income: 0, cars: 0, incentive: 0 });
+  return buckets.get(period.key);
+}
+for (const row of dailyPay) {
+  const p = row.properties;
+  const bucket = bucketFor(periodFor(p['업무일']?.date?.start?.slice(0, 10)));
+  if (!bucket) continue;
+  const base = Number(p['총 지급액(원)']?.number) || 0;
+  const bonus = Number(p['예상 별점 인센티브(원)']?.number) || 0;
+  bucket.income += base + bonus;
+  bucket.incentive += bonus;
+}
+for (const row of completed) {
+  const bucket = bucketFor(periodFor(row.properties['작업일']?.date?.start?.slice(0, 10)));
+  if (bucket) bucket.cars++;
+}
+const byPayPeriod = [...buckets.values()].sort((a, b) => a.start.localeCompare(b.start));
 const data = {
+  byPayPeriod,
   byCarClass,
   count: completed.length,
   deposit,
