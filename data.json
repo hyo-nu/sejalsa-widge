@@ -1,4 +1,5 @@
 {
+  "byPayPeriod": [],
   "byCarClass": [
     {
       "class": "중형",
@@ -41,5 +42,5 @@
   "deposit": 29735,
   "averageMinutes": 64.5,
   "hourly": 18446,
-  "updatedAt": "2026-11-23T03:44:14.260Z"
+  "updatedAt": "2026-11-23T05:22:17.297Z"
 }
