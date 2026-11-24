@@ -5,6 +5,8 @@ on:
     paths:
       - '.github/workflows/update.yml'
       - 'sync.mjs'
+      - 'index.html'
+      - 'movement.json'
   schedule:
     - cron: '17 * * * *'
 permissions:
@@ -24,6 +26,7 @@ jobs:
           NOTION_WASH_DB_ID: '41e91f38-2801-81b3-8434-daa798bbe74f'
           NOTION_PAYROLL_DB_ID: '41e91f38-2801-8188-9818-c1e1c5200026'
           NOTION_DAILY_PAY_DB_ID: '41e91f38-2801-81a9-8351-d166f251aa38'
+          NOTION_MOVEMENT_DB_ID: '42291f38-2801-812a-8961-eeb33499c8fc'
       - name: Commit latest KPI
         run: |
           git config user.name 'github-actions[bot]'
