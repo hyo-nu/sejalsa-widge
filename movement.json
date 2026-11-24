@@ -1,0 +1,47 @@
+{
+  "note": "Notion 이동 DB가 기존 GitHub Notion integration에 공유되기 전 임시 복제본; 이후에는 Notion 우선",
+  "rows": [
+    {
+      "date": "2026-11-08",
+      "km": 24.1,
+      "efficiency": 12.9,
+      "fuelPrice": 1854
+    },
+    {
+      "date": "2026-11-09",
+      "km": 16.6,
+      "efficiency": 12.9,
+      "fuelPrice": 1854
+    },
+    {
+      "date": "2026-11-15",
+      "km": 23.9,
+      "efficiency": 12.9,
+      "fuelPrice": 1854
+    },
+    {
+      "date": "2026-11-17",
+      "km": 23.3,
+      "efficiency": 12.9,
+      "fuelPrice": 1854
+    },
+    {
+      "date": "2026-11-19",
+      "km": 35.5,
+      "efficiency": 12.9,
+      "fuelPrice": 1854
+    },
+    {
+      "date": "2026-11-20",
+      "km": 34.9,
+      "efficiency": 12.9,
+      "fuelPrice": 1854
+    },
+    {
+      "date": "2026-11-21",
+      "km": 30,
+      "efficiency": 12.9,
+      "fuelPrice": 1854
+    }
+  ]
+}
