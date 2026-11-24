@@ -121,13 +121,61 @@ for (const row of completed) {
   if (bucket) bucket.cars++;
 }
 const byPayPeriod = [...buckets.values()].sort((a, b) => a.start.localeCompare(b.start));
+
+const movementId = process.env.NOTION_MOVEMENT_DB_ID;
+let movements = [];
+try {
+  if (movementId) {
+    const items = await getRows(movementId);
+    movements = items.map(row => {
+      const p = row.properties;
+      const date = p['업무일']?.date?.start?.slice(0,10);
+      const km = p['총 이동거리']?.number;
+      const efficiency = p['적용 연비']?.number;
+      const fuelPrice = p['휘발유 단가']?.number;
+      return {date,km,efficiency,fuelPrice};
+    }).filter(r=>r.date && Number.isFinite(r.km));
+  }
+} catch(e) {
+  console.warn('Movement database unavailable, retaining verified movement snapshot:', e.message);
+}
+if (!movements.length) {
+  const snapshot = JSON.parse(await fs.readFile('movement.json','utf8'));
+  movements = snapshot.rows;
+}
+const monthKey = iso => /^\\d{4}-\\d{2}-\\d{2}$/.test(iso ?? '') ? iso.slice(0,7) : null;
+function makeStats(washes, pays, dailies, moves) {
+  const finished = washes.filter(row => (row.properties['세차 상태']?.select?.name || row.properties['세차 상태']?.status?.name) === '완료');
+  const valid = finished.filter(row => Number.isFinite(row.properties['작업 시간(분)']?.number) && row.properties['작업 시간(분)'].number > 0);
+  const totalMinutes = valid.reduce((n,row)=>n+row.properties['작업 시간(분)'].number,0);
+  const grossValue = valid.reduce((n,row)=>n+(Number(row.properties['세차 보수(원)']?.number ?? row.properties['세차 보수(원)']?.formula?.number)||0)+(Number(row.properties['부가서비스 보수(원)']?.number)||0),0);
+  const paid = pays.reduce((n,row)=>n+(Number(row.properties['실제 입금액(원)']?.number)||0),0);
+  const income = dailies.reduce((n,row)=>n+(Number(row.properties['총 지급액(원)']?.number)||0)+(Number(row.properties['예상 별점 인센티브(원)']?.number)||0),0);
+  const km = moves.reduce((n,r)=>n+(Number(r.km)||0),0);
+  const fuel = moves.reduce((n,r)=>n+(r.efficiency>0 ? (Number(r.km)||0)/r.efficiency*(Number(r.fuelPrice)||0) : 0),0);
+  return {count:finished.length,deposit:Math.round(paid),averageMinutes:valid.length?Math.round(totalMinutes/valid.length*10)/10:0,hourly:totalMinutes?Math.round(grossValue*60/totalMinutes):0,km:Math.round(km*10)/10,fuel:Math.round(fuel),afterFuel:Math.round(income-fuel),hasWorkIncome:dailies.length>0};
+}
+const allStats = makeStats(wash,payroll,dailyPay,movements);
+const monthKeys = new Set([
+ ...wash.map(r=>monthKey(r.properties['작업일']?.date?.start?.slice(0,10))),
+ ...dailyPay.map(r=>monthKey(r.properties['업무일']?.date?.start?.slice(0,10))),
+ ...movements.map(r=>monthKey(r.date)),
+ ...payroll.map(r=>monthKey(r.properties['지급 예정일']?.date?.start?.slice(0,10)))
+].filter(Boolean));
+const byMonth = Object.fromEntries([...monthKeys].sort().map(month=>[
+ month,makeStats(
+   wash.filter(r=>monthKey(r.properties['작업일']?.date?.start?.slice(0,10))===month),
+   payroll.filter(r=>monthKey(r.properties['지급 예정일']?.date?.start?.slice(0,10))===month),
+   dailyPay.filter(r=>monthKey(r.properties['업무일']?.date?.start?.slice(0,10))===month),
+   movements.filter(r=>monthKey(r.date)===month)
+ )
+]));
+
 const data = {
+  byMonth,
   byPayPeriod,
   byCarClass,
-  count: completed.length,
-  deposit,
-  averageMinutes: timed.length ? Math.round(minutes / timed.length * 10) / 10 : 0,
-  hourly: minutes ? Math.round(gross * 60 / minutes) : 0,
+  ...allStats,
   updatedAt: new Date().toISOString()
 };
 await fs.writeFile('data.json', JSON.stringify(data, null, 2) + '\n');
