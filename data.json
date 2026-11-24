@@ -1,4 +1,5 @@
 {
+  "byMonth": {},
   "byPayPeriod": [
     {
       "start": "2026-10-25",
@@ -69,5 +70,9 @@
   "deposit": 29735,
   "averageMinutes": 65.1,
   "hourly": 18535,
-  "updatedAt": "2026-11-23T14:43:43.584Z"
+  "km": 188.3,
+  "fuel": 27063,
+  "afterFuel": 424187,
+  "hasWorkIncome": true,
+  "updatedAt": "2026-11-24T01:09:24.725Z"
 }
