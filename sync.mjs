@@ -143,7 +143,7 @@ if (!movements.length) {
   const snapshot = JSON.parse(await fs.readFile('movement.json','utf8'));
   movements = snapshot.rows;
 }
-const monthKey = iso => /^\\d{4}-\\d{2}-\\d{2}$/.test(iso ?? '') ? iso.slice(0,7) : null;
+const monthKey = iso => /^\d{4}-\d{2}-\d{2}$/.test(iso ?? '') ? iso.slice(0,7) : null;
 function makeStats(washes, pays, dailies, moves) {
   const finished = washes.filter(row => (row.properties['세차 상태']?.select?.name || row.properties['세차 상태']?.status?.name) === '완료');
   const valid = finished.filter(row => Number.isFinite(row.properties['작업 시간(분)']?.number) && row.properties['작업 시간(분)'].number > 0);
