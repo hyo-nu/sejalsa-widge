@@ -1,13 +1,13 @@
 {
   "byMonth": {
     "2026-11": {
-      "count": 18,
+      "count": 19,
       "deposit": 29735,
-      "averageMinutes": 65.1,
-      "hourly": 18535,
+      "averageMinutes": 66.2,
+      "hourly": 18398,
       "km": 188.3,
       "fuel": 27063,
-      "afterFuel": 424187,
+      "afterFuel": 448187,
       "hasWorkIncome": true
     }
   },
@@ -25,6 +25,13 @@
       "income": 420500,
       "cars": 17,
       "incentive": 17000
+    },
+    {
+      "start": "2026-11-22",
+      "end": "2026-12-05",
+      "income": 24000,
+      "cars": 1,
+      "incentive": 0
     }
   ],
   "byCarClass": [
@@ -77,13 +84,13 @@
       }
     }
   ],
-  "count": 18,
+  "count": 19,
   "deposit": 29735,
-  "averageMinutes": 65.1,
-  "hourly": 18535,
+  "averageMinutes": 66.2,
+  "hourly": 18398,
   "km": 188.3,
   "fuel": 27063,
-  "afterFuel": 424187,
+  "afterFuel": 448187,
   "hasWorkIncome": true,
-  "updatedAt": "2026-11-24T12:37:49.925Z"
+  "updatedAt": "2026-11-24T23:02:16.643Z"
 }
