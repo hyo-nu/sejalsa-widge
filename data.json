@@ -2,7 +2,7 @@
   "byMonth": {
     "2026-11": {
       "count": 19,
-      "deposit": 29735,
+      "deposit": 436589,
       "averageMinutes": 66.2,
       "hourly": 18398,
       "km": 188.3,
@@ -85,12 +85,12 @@
     }
   ],
   "count": 19,
-  "deposit": 29735,
+  "deposit": 436589,
   "averageMinutes": 66.2,
   "hourly": 18398,
   "km": 188.3,
   "fuel": 27063,
   "afterFuel": 448187,
   "hasWorkIncome": true,
-  "updatedAt": "2026-11-27T02:53:04.932Z"
+  "updatedAt": "2026-11-27T12:29:26.133Z"
 }
