@@ -1,13 +1,13 @@
 {
   "byMonth": {
     "2026-11": {
-      "count": 19,
+      "count": 20,
       "deposit": 436589,
-      "averageMinutes": 66.2,
-      "hourly": 18398,
+      "averageMinutes": 64.3,
+      "hourly": 18558,
       "km": 188.3,
       "fuel": 27063,
-      "afterFuel": 448187,
+      "afterFuel": 462187,
       "hasWorkIncome": true
     }
   },
@@ -29,9 +29,9 @@
     {
       "start": "2026-11-22",
       "end": "2026-12-05",
-      "income": 24000,
-      "cars": 1,
-      "incentive": 0
+      "income": 38000,
+      "cars": 2,
+      "incentive": 2000
     }
   ],
   "byCarClass": [
@@ -39,8 +39,8 @@
       "class": "중형",
       "내부만": null,
       "외부만": {
-        "average": 59,
-        "count": 2
+        "average": 48.7,
+        "count": 3
       },
       "내부+외부": {
         "average": 90,
@@ -84,13 +84,13 @@
       }
     }
   ],
-  "count": 19,
+  "count": 20,
   "deposit": 436589,
-  "averageMinutes": 66.2,
-  "hourly": 18398,
+  "averageMinutes": 64.3,
+  "hourly": 18558,
   "km": 188.3,
   "fuel": 27063,
-  "afterFuel": 448187,
+  "afterFuel": 462187,
   "hasWorkIncome": true,
-  "updatedAt": "2026-11-27T21:59:38.767Z"
+  "updatedAt": "2026-11-28T03:56:16.723Z"
 }
